@@ -7,9 +7,9 @@
   /* ---------- hero headline: draft, detect, remask, repair ---------- */
   function hero() {
     var line = $('#hero-line'); if (!line) return;
-    var KEEP = ['When', 'the', 'facts', 'change,'];
-    var DRAFT = ['rewrite', 'the', 'whole', 'summary.'];
-    var FIXED = ['repair', 'only', 'what', 'went', 'stale.'];
+    var KEEP = ['Learn', 'from', 'feedback.'];
+    var DRAFT = ['Start', 'over', 'every', 'time.'];
+    var FIXED = ['Adapt', 'without', 'starting', 'over.'];
     var pills = $$('.hstep'), run = 0;
     function pill(k) { pills.forEach(function (p) { p.setAttribute('data-on', p.getAttribute('data-k') === k ? '1' : '0'); }); }
     function word(t, cls) { return h('span', { class: 'hw ' + (cls || ''), 'aria-hidden': 'true', text: t }); }
@@ -26,7 +26,7 @@
       var draft = DRAFT.map(function (t) { return line.appendChild(word(t, 'm')); });
       pill('draft');
       await sleep(500);
-      var order = [2, 5, 0, 7, 3, 1, 6, 4], all = keep.concat(draft);
+      var order = [2, 5, 0, 6, 3, 1, 4], all = keep.concat(draft);
       for (var i = 0; i < order.length; i++) {
         if (me !== run) return;
         all[order[i]].classList.remove('m'); all[order[i]].classList.add('pop');

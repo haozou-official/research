@@ -165,30 +165,30 @@
   });
   var s = HZ.s;
 
-  /* ============ Synthesis: one loop, three scales ============ */
+  /* ============ Synthesis: feedback and adaptation at three different levels ============ */
   HZ.register('loop', function (body) {
     var SCALES = [
-      { name: 'Tokens', r: 78,
-        d: 'A summary written earlier, or a block of eight speculative tokens.',
-        v: 'A token-level detector scores each word against the new evidence. A target model checks each drafted block.',
-        f: 'Remask and infill only the flagged spans. Commit the verified prefix and one correction.',
-        w: 'Detect, Remask, Repair; faster streaming summaries.' },
+      { name: 'Outputs', r: 78,
+        d: 'A previous summary or a speculative block of proposed tokens.',
+        v: 'New evidence identifies stale claims; the target model verifies proposed tokens.',
+        f: 'Edit affected spans or commit the verified prefix.',
+        w: 'DRR; Capital One streaming summarization.' },
       { name: 'Reasoning', r: 124,
-        d: 'A reasoning trace being infilled, with a blank reserved for the answer.',
-        v: 'The entropy of the answer block, read at every step. Partial traces can be scored against a known answer.',
-        f: 'Stop early once the answer settles. Sample better traces from the posterior and fine-tune on them.',
-        w: 'Rethinking reasoning with masked diffusion language models.' },
-      { name: 'Actions', r: 170,
-        d: 'A rollout: hundreds of tool calls by an agent inside its real harness.',
-        v: 'An environment with a task verifier. Long-horizon benchmarks show which checks agents skip.',
-        f: 'Reinforcement learning on the verified outcome, with rollouts collected at scale.',
-        w: 'OSWorld 2.0; OpenForgeRL; stale rollouts in agentic RL.' }
+        d: 'An unfinished reasoning trace and a provisional answer.',
+        v: 'Track answer uncertainty or compare a sampled trace with supervision.',
+        f: 'Stop when the answer stabilizes, or use feedback to improve future reasoning.',
+        w: 'COLM 2026: reasoning as infilling.' },
+      { name: 'Agents', r: 170,
+        d: 'A sequence of tool calls in a long-horizon environment.',
+        v: 'Observe environment feedback and evaluate task progress and success.',
+        f: 'Use outcomes for credit assignment and RL updates; executed actions cannot simply be undone.',
+        w: 'OSWorld 2.0; OpenForgeRL; ALFWorld synchronous/asynchronous RL.' }
     ];
-    /* three rings, nested like a gyroscope; the chosen one turns to face the reader */
+    /* three conceptual levels, nested like a gyroscope; not an identical algorithm */
     var clamp = HZ.clamp;
-    var ARCS = [['Draft', -148, -32, '#8ec5ee'], ['Verify', -28, 88, '#f2b84b'], ['Repair', 92, 208, '#45d6a4']];
+    var ARCS = [['Propose', -148, -32, '#8ec5ee'], ['Evaluate', -28, 88, '#f2b84b'], ['Adapt', 92, 208, '#45d6a4']];
     var RAD = [0.80, 1.26, 1.72], TILT = [[1.08, 0.5], [1.0, -0.9], [1.12, 2.2]], SPIN = [0.21, -0.15, 0.11];
-    var cv = h('canvas', { class: 'loop-3d', role: 'img', 'aria-label': 'Three nested rings, each made of draft, verify and repair: tokens, reasoning and actions. The selected ring faces you.' });
+    var cv = h('canvas', { class: 'loop-3d', role: 'img', 'aria-label': 'Three illustrative levels of adaptation: outputs, reasoning and agents. Each proposes, evaluates and adapts in a different way.' });
     var ctx = cv.getContext('2d'), W = 0, H = 0, face = [1, 0, 0], par = [0, 0], parTo = [0, 0], paths = [[], [], []];
     function rgba(hex, a) { var n = parseInt(hex.slice(1), 16); return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a.toFixed(3) + ')'; }
     function solid(hex, a) {       /* the colour already mixed into the panel, so overlapping caps do not show */
@@ -264,7 +264,7 @@
       cur = i; var sc = SCALES[i];
       title.textContent = sc.name;
       HZ.clear(rows);
-      [['draft', 'd', sc.d], ['verify', 'v', sc.v], ['repair', 'r', sc.f]].forEach(function (r) { rows.appendChild(h('div', null, h('b', { class: r[1], text: r[0] }), h('span', { text: r[2] }))); });
+      [['propose', 'd', sc.d], ['evaluate', 'v', sc.v], ['adapt', 'r', sc.f]].forEach(function (r) { rows.appendChild(h('div', null, h('b', { class: r[1], text: r[0] }), h('span', { text: r[2] }))); });
       where.textContent = 'In this work: ' + sc.w;
       seg.pick(i);
       if (HZ.rm || !on) draw(performance.now());

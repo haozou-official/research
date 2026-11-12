@@ -510,13 +510,28 @@
     <div data-reveal="scale" data-fig="loop" data-title="Feedback drives adaptation at different levels" data-kind="schematic" data-note="A conceptual analogy, not one shared algorithm. Text can be revised; actions already taken cannot be undone, so agents must learn from outcomes."></div>
 
     <div class="phd">
-      <p class="kicker" data-reveal>What I want to build in a PhD</p>
-      <h2 class="h-xl" data-reveal style="max-width: 14em">An agent that commits like an autoregressive model and revises like a diffusion model.</h2>
+      <p class="kicker" data-reveal>My PhD research vision</p>
+      <h2 class="h-xl" data-reveal style="max-width: 15em">Toward Reliable and Efficient Adaptive Agents</h2>
+      <p class="phd-lede" data-reveal>I want to understand how agents can learn reliably from interaction and adapt efficiently as their environments change. Two connected research questions guide the ideas below.</p>
+      <div class="phd-pillars" data-reveal>
+        <div class="phd-pillar">
+          <span class="phd-pillar-tag">01 / LEARNING</span>
+          <h3>Reliable Agent Learning</h3>
+          <p>How can agents learn robustly from long-horizon feedback, with reliable credit assignment, training, and evaluation?</p>
+        </div>
+        <div class="phd-pillar">
+          <span class="phd-pillar-tag">02 / INFERENCE</span>
+          <h3>Efficient Adaptive Inference</h3>
+          <p>How can models reuse computation, verify provisional outputs, and update selectively as new information arrives?</p>
+        </div>
+      </div>
+      <p class="kicker phd-options" data-reveal>Potential research directions</p>
 
       <div class="dir">
         <div>
-          <p class="n" data-reveal>Direction one</p>
+          <p class="n" data-reveal>Research idea 01 / Hybrid agents</p>
           <h3 data-reveal>Two minds in one agent</h3>
+          <p class="phd-hypothesis" data-reveal>An agent that commits like an autoregressive model and revises like a diffusion model.</p>
           <p data-reveal>Autoregressive models reason well in causal order. Masked diffusion models decode in parallel and can reopen any position, and scaled-up ones such as LLaDA 2.0 and Mercury 2 now support tool calling. I want to treat the autoregressive model as the target and the diffusion model as the drafter, and learn the policy that routes between them over a long task.</p>
           <ul data-reveal>
             <li><b>Route.</b> A learned switch decides, step by step, which model acts: slow causal reasoning, or a fast parallel draft.</li>
@@ -532,7 +547,7 @@
 
       <div class="dir">
         <div>
-          <p class="n" data-reveal>Direction two</p>
+          <p class="n" data-reveal>Research idea 02 / Diffusion RL</p>
           <h3 data-reveal>Reinforcement learning for diffusion language models</h3>
           <p data-reveal>Post-train diffusion language models on agentic tasks such as ALFWorld, WebShop and ScienceWorld, for higher success and lower latency. I want to carry over what is working for autoregressive agents: asynchronous training, partial rollouts, MiMo-style methods and single-rollout optimization.</p>
           <p class="src" data-reveal>Builds on <a href="#openforge">OpenForgeRL</a> and the <a href="#staleness">staleness study</a>. Background: <a href="https://arxiv.org/abs/2510.09541">Sandwiched Policy Gradient</a>, <a href="https://arxiv.org/abs/2607.15200">Mask-Aware Policy Gradients</a>, <a href="https://arxiv.org/abs/2603.12554">stepwise advantages for diffusion LLMs</a>.</p>
@@ -553,7 +568,7 @@
 
       <div class="dir">
         <div>
-          <p class="n" data-reveal>Direction three, and open to it</p>
+          <p class="n" data-reveal>Additional research interest / Embodied AI</p>
           <h3 data-reveal>Language models that meet the physical world</h3>
           <p data-reveal>General-purpose models have started to control robots directly. Recent evaluations of GPT-6 Astra report real competence, and a clear gap between semantic reasoning and physical execution. I want to find out where that gap sits. My guess is in what language describes poorly: deformable objects, contact, spatial precision. I would like to build the benchmarks and data that measure it.</p>
           <p data-reveal>I trained diffusion policies for simple manipulation, picking up cubes and flipping objects, during a short internship in Yunzhu Li's lab. That is where deformability and spatial awareness stopped being abstractions for me.</p>

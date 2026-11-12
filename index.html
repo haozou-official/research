@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hao Zou: draft, verify, repair</title>
+<meta name="description" content="Hao Zou's research path at Columbia NLP: masked diffusion language models, faithful summarization, and LLM agents for long-horizon tasks.">
+<meta property="og:title" content="Hao Zou: draft, verify, repair">
+<meta property="og:description" content="An interactive walk through research on diffusion language models and reliable LLM agents.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="js/data.js"></script>
+<script>
+/* Decide before first paint whether the opening plays: once per visit, wide screens, motion allowed, no deep link. */
+(function () {
+  var d = document.documentElement; d.classList.add('js');
+  try {
+    var q = new URLSearchParams(location.search).get('intro'), seen = false;
+    try { seen = !!sessionStorage.getItem('hz-intro'); } catch (e) {}
+    var ok = HZ.CONFIG.intro !== false && !seen && !location.hash && window.innerWidth >= 760 &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (q === '1' || q === 'still') ok = true;
+    if (q === '0') ok = false;
+    if (ok) d.classList.add('intro-on');
+  } catch (e) {}
+})();
+</script>
+</head>
+<body>
+
+<div id="intro">
+  <canvas aria-hidden="true"></canvas>
+  <p class="intro-cap" aria-hidden="true"><b>Hao Zou</b><span>Low Library, Columbia University</span></p>
+  <button class="intro-skip" type="button">Skip<span> · any key</span></button>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="bot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="4" y="8" width="16" height="11" rx="4"/><path d="M12 8V4.5"/><circle cx="12" cy="3.6" r="1.1" fill="currentColor" stroke="none"/>
+    <circle cx="9.2" cy="13.3" r="1.15" fill="currentColor" stroke="none"/><circle cx="14.8" cy="13.3" r="1.15" fill="currentColor" stroke="none"/><path d="M2 12.5v3M22 12.5v3"/>
+  </symbol>
+</svg>
+<div class="progress" aria-hidden="true"><i></i></div>
+<div class="glow" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="#top">Hao Zou</a>
+    <nav aria-label="Sections">
+      <a href="#papers">Papers</a>
+      <a href="#path">The path</a>
+      <a href="#survey" data-thread="gen eff">Generation</a>
+      <a href="#osworld" data-thread="agents">Agents</a>
+      <a href="#next" data-thread="next">What is next</a>
+    </nav>
+    <a class="btn small keep" href="https://haozou-official.github.io/files/Hao_Zou_CV20261015.pdf">CV</a>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <canvas id="field" aria-hidden="true"></canvas>
+  <div class="wrap hero-grid">
+    <div>
+      <p class="hero-hello"><b>I'm Hao Zou.</b> I work on diffusion language models and LLM agents at Columbia.</p>
+      <h1 class="hero-line" id="hero-line" aria-label="When the facts change, repair only what went stale."></h1>
+      <div class="hero-steps" aria-hidden="true">
+        <svg><use href="#bot"/></svg>
+        <span class="hstep" data-k="draft">draft</span>
+        <span class="hstep" data-k="detect">detect</span>
+        <span class="hstep" data-k="remask">remask</span>
+        <span class="hstep" data-k="repair">repair</span>
+        <button class="btn small" id="hero-replay" type="button">Replay</button>
+      </div>
+      <p class="hero-sub">A summary goes stale. A chain of reasoning commits to the wrong number. An agent drifts two hundred steps into a task. The fix I work on is the same loop each time: <strong>draft, verify, then repair only what failed</strong>.</p>
+      <div class="hero-cta">
+        <a class="btn solid" href="#papers">Publications</a>
+        <a class="btn" href="#path">See the whole path</a>
+      </div>
+    </div>
+    <aside class="card-me" aria-label="About Hao Zou">
+      <div id="portrait"></div>
+      <h2>Hao Zou</h2>
+      <p>Columbia University NLP</p>
+      <ul class="facts">
+        <li><span>Advisors</span><span><a href="https://www.cs.columbia.edu/~kathy/">Kathleen McKeown</a> and <a href="https://www.cs.columbia.edu/~zhouyu/">Zhou Yu</a></span></li>
+        <li><span>Degrees</span><span>M.S. Columbia, 2026. B.S. Minnesota, 2023.</span></li>
+        <li><span>Venues</span><span>EMNLP 2026 (oral), COLM 2026, EMNLP 2024</span></li>
+        <li><span>Next</span><span>Applying to PhD programs for fall 2027</span></li>
+      </ul>
+      <div class="links">
+        <a href="mailto:hz2999@columbia.edu">Email</a>
+        <a href="https://scholar.google.com/citations?hl=en&user=jwujaocAAAAJ">Scholar</a>
+        <a href="https://github.com/haozou-official">GitHub</a>
+        <a href="https://www.linkedin.com/in/hao-zou-05b447248/">LinkedIn</a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ===================== PUBLICATIONS (first) ===================== -->
+<section class="band alt" id="papers">
+  <div class="wrap">
+    <div class="band-head" data-reveal>
+      <h2>Publications</h2>
+    </div>
+    <div class="pubs">
+      <article class="pubcard" data-reveal="scale" style="--i:0">
+        <a class="thumb" href="#drr" aria-label="Detect, Remask, Repair: open the walk-through"><img src="assets/figures/drr-example.png" alt="" loading="lazy"></a>
+        <div class="in">
+          <span><span class="badge gold">EMNLP 2026, oral</span></span>
+          <h3>Detect, Remask, Repair: Diffusion Editing for Faithful Summarization of Evolving Contexts</h3>
+          <p class="by"><b>Hao Zou</b>, Zachary Horvitz, Chandhru Karthick, Zhou Yu, Kathleen McKeown</p>
+          <div class="go"><a href="https://arxiv.org/abs/2606.12807">arXiv</a><a href="https://aclanthology.org/2026.emnlp-main.1876/">ACL</a><a href="#drr">Walk-through</a></div>
+        </div>
+      </article>
+      <article class="pubcard" data-reveal="scale" style="--i:1">
+        <a class="thumb" href="#mdlm" aria-label="Rethinking Reasoning with MDLMs: open the walk-through"><img src="assets/figures/mdlm-reasoning.png" alt="" loading="lazy" style="object-fit: contain; padding: 10px"></a>
+        <div class="in">
+          <span><span class="badge pub">COLM 2026</span></span>
+          <h3>Rethinking Reasoning with MDLMs: Early Exits, Post-hoc Reasoning, and Beyond</h3>
+          <p class="by">Zachary Horvitz, Raghav Singhal, <b>Hao Zou</b>, Carles Domingo-Enrich, Zhou Yu, Rajesh Ranganath, Kathleen McKeown</p>
+          <div class="go"><a href="https://arxiv.org/abs/2510.19990">arXiv</a><a href="#mdlm">Walk-through</a></div>
+        </div>
+      </article>
+      <article class="pubcard" data-reveal="scale" style="--i:2">
+        <a class="thumb" href="#openforge" aria-label="OpenForgeRL: open the walk-through"><img src="assets/figures/openforgerl.png" alt="" loading="lazy" style="object-fit: contain; padding: 8px"></a>
+        <div class="in">
+          <span><span class="badge rev">ICLR 2027, under review</span></span>
+          <h3>OpenForgeRL: Train Harness-native Agents in Any Environment</h3>
+          <p class="by">Xiao Yu, Baolin Peng, Ruize Xu, <b>Hao Zou</b>, Qianhui Wu, Hao Cheng, Wenlin Yao, Nikhil Singh, Zhou Yu, Jianfeng Gao</p>
+          <div class="go"><a href="https://arxiv.org/abs/2607.21557">arXiv</a><a href="https://aka.ms/OpenForge-RL">Code</a><a href="#openforge">Walk-through</a></div>
+        </div>
+      </article>
+      <article class="pubcard" data-reveal="scale" style="--i:3">
+        <a class="thumb" href="#osworld" aria-label="OSWorld 2.0: open the walk-through"><img src="assets/video/osworld2-poster.jpg" alt="" loading="lazy"></a>
+        <div class="in">
+          <span><span class="badge rev">ICLR 2027, under review</span></span>
+          <h3>OSWorld 2.0: Benchmarking Computer Use Agents on Long-Horizon Real-World Tasks</h3>
+          <p class="by">A 36-author collaboration led by XLANG Lab; I contributed long-horizon workflows</p>
+          <div class="go"><a href="https://arxiv.org/abs/2606.29537">arXiv</a><a href="https://osworld-v2.xlang.ai/">Site</a><a href="#osworld">Walk-through</a></div>
+        </div>
+      </article>
+    </div>
+    <div class="pub-more" data-reveal>
+      <div><b>You Make me Feel like a Natural Question: Training QA Systems on Transformed Trivia Questions</b><span>EMNLP 2024</span><span>Co-author</span><a href="https://aclanthology.org/2024.emnlp-main.1140/">ACL Anthology</a></div>
+      <div><b>A Survey of Diffusion Models in Natural Language Processing</b><span>arXiv, 2023</span><span>First author</span><a href="https://arxiv.org/abs/2305.14671">arXiv</a></div>
+      <div><b>Debiasing Language Models for In-Context Learning Using a Causal Inference-Inspired Method</b><span>Manuscript, 2023</span><span>First author</span><span></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MAP ===================== -->
+<section class="band" id="path">
+  <div class="wrap">
+    <div class="band-head" data-reveal>
+      <h2>Every project is a stop on one path</h2>
+      <p>Three threads start in undergraduate labs and meet at the right edge. Click a stop to fly to it, or walk all ten chapters with the arrow keys.</p>
+    </div>
+    <div class="map-tools" data-reveal>
+      <button class="chip" type="button" data-lane="all" aria-pressed="true">All threads</button>
+      <button class="chip" type="button" data-lane="gen" aria-pressed="false" style="--k: var(--sky)"><i></i>Diffusion and faithful generation</button>
+      <button class="chip" type="button" data-lane="eff" aria-pressed="false" style="--k: var(--lilac)"><i></i>Efficient inference</button>
+      <button class="chip" type="button" data-lane="agents" aria-pressed="false" style="--k: var(--peach)"><i></i>Agents and reinforcement learning</button>
+      <span class="spacer"></span>
+      <button class="btn solid small" type="button" id="tour-start">Walk the path</button>
+    </div>
+    <div class="map-scroll" data-reveal="scale"><canvas id="map3d" role="img" aria-label="Research map: projects from 2021 to 2026 on three threads, drawn as stops on a path. The same stops are listed as links after this picture."></canvas></div>
+    <ul class="sr-only" id="map-links" aria-label="Stops on the map"></ul>
+  </div>
+</section>
+
+<div class="chapters">
+
+<!-- ===================== 1 ROOTS ===================== -->
+<section class="chapter" id="roots" data-thread="roots" data-title="Roots">
+  <div class="wrap">
+    <header class="ch-head">
+      <p class="ch-meta" data-reveal><span class="badge">2021 to 2025</span> Maryland, Minnesota, Sony Research, Duke and IBM</p>
+      <h2 data-reveal>Four labs before Columbia, and the tool each one left me with</h2>
+    </header>
+    <div class="roots">
+      <article class="root" data-reveal style="--i:0">
+        <div class="thumb"><img src="assets/figures/qa.png" alt="" loading="lazy"></div>
+        <div class="in"><span class="when">Maryland, 2021 to 2022</span><h3>Retrieval and evaluation</h3><p>Turning expert trivia into natural questions for QA training, with Jordan Boyd-Graber. EMNLP 2024.</p></div>
+      </article>
+      <article class="root" data-reveal style="--i:1">
+        <div class="thumb"><img src="assets/figures/debias.png" alt="" loading="lazy"></div>
+        <div class="in"><span class="when">Minnesota, 2021 to 2023</span><h3>Causal thinking about bias</h3><p>A causal-inference-inspired debiasing method for in-context learning, up to +22 points, with Dongyeop Kang.</p></div>
+      </article>
+      <article class="root" data-reveal style="--i:2">
+        <div class="thumb txt">PPO</div>
+        <div class="in"><span class="when">Sony Research, 2022 to 2023</span><h3>Reinforcement learning</h3><p>Multi-style controllable generation trained with PPO: +31.2% human-judged style alignment.</p></div>
+      </article>
+      <article class="root" data-reveal style="--i:3">
+        <div class="thumb txt">2×</div>
+        <div class="in"><span class="when">Duke and IBM, 2024 to 2025</span><h3>The cost of inference</h3><p>Diffusion against flow-matching benchmarks; KV-cache quantization with 50% less memory and 2× faster inference in the evaluated setup.</p></div>
+      </article>
+    </div>
+    <p class="bridge" data-reveal>Diffusion was a side project in 2023. It became the main line.</p>
+  </div>
+</section>
+
+<div class="thread-head" data-thread="gen"><div class="wrap" data-reveal>
+  <h2>Thread one: generation that can be repaired</h2>
+  <p>From a survey, to reading a model's confidence mid-thought, to a method that edits only what is wrong, to a system and a speed-up built around it.</p>
+</div></div>
+
+<!-- ===================== 2 SURVEY ===================== -->
+<section class="chapter" id="survey" data-thread="gen" data-title="Diffusion for text">
+  <div class="wrap">
+    <header class="ch-head">
+      <p class="ch-meta" data-reveal><span class="badge">arXiv 2023</span> First author, with Zae Myung Kim and Dongyeop Kang</p>
+      <h2 data-reveal>Text does not have to be written left to right</h2>
+      <p class="ch-lede" data-reveal>A diffusion model can change the middle of a sentence without touching the rest. That one property is what the rest of this thread is built on.</p>
+    </header>
+    <div class="split center">
+      <figure class="shot" data-reveal="scale">
+        <button class="zoom" type="button" aria-label="Enlarge the figure"><img src="assets/figures/diffusion-survey.png" width="1122" height="582" alt="Overview figure from the survey: the forward and reverse diffusion process for text and the techniques used by different models" loading="lazy"></button>
+        <figcaption>From the survey.</figcaption>
+      </figure>
+      <div data-reveal="scale" data-fig="ar-vs-mdm" data-title="Let both rows finish, then click a word" data-kind="illustration"></div>
+    </div>
+    <div class="ch-links"><a class="btn small" href="https://arxiv.org/abs/2305.14671">Survey on arXiv</a></div>
+    <p class="bridge" data-reveal>If a model can rewrite any position, can it also tell us what it believes before it finishes?</p>
+  </div>
+</section>
+
+<!-- ===================== 3 MDLM ===================== -->
+<section class="chapter" id="mdlm" data-thread="gen" data-title="Reasoning as infilling">
+  <div class="wrap">
+    <header class="ch-head">
+      <p class="ch-meta" data-reveal><span class="badge pub">COLM 2026</span> With Zachary Horvitz, Raghav Singhal, Carles Domingo-Enrich, Zhou Yu, Rajesh Ranganath and Kathleen McKeown</p>
+      <h2 data-reveal>Leave a blank for the answer and watch it fill in</h2>
+      <p class="ch-lede" data-reveal>Lay the output out as a reasoning block and an answer block. The model then reports its belief about the answer at every step of reasoning, at no extra cost. When the belief settles, stop.</p>
+    </header>
+    <div class="split wide-left">
+      <figure class="shot" data-reveal="scale">
+        <button class="zoom" type="button" aria-label="Enlarge the figure"><img src="assets/figures/mdlm-reasoning.png" width="984" height="586" alt="Reasoning-as-infilling: a prompt, a reasoning block and an answer block; multi-token entropy decoding and an early exit once the answer is confident" loading="lazy"></button>
+        <figcaption>From the paper: (A) the template, (B) early exit, (C) multi-token entropy decoding.</figcaption>
+      </figure>
+      <div class="stats two">
+        <div data-reveal style="--i:0"><b data-count="24" data-suffix="%">24%</b><span>fewer function calls on GSM8K, no accuracy loss</span></div>
+        <div data-reveal style="--i:1"><b data-count="2.7" data-dec="1" data-suffix="×">2.7×</b><span>fewer steps with entropy decoding</span></div>
+        <div data-reveal style="--i:2"><b data-count="3.3" data-dec="1" data-suffix="×">3.3×</b><span>faster with both, at a 0.1% accuracy cost</span></div>
+        <div data-reveal style="--i:3"><b data-count="14.9" data-dec="1" data-prefix="+">+14.9</b><span>GSM8K points from fine-tuning on posterior traces</span></div>
+      </div>
+    </div>
+    <div class="gap" data-reveal="scale" data-fig="infill" data-title="Try it: set the exit threshold" data-kind="illustration"
+      data-note="The arithmetic example and its probabilities are illustrative. They show the mechanism, not a measured trace."></div>
+    <p class="mine" data-reveal><b>My part.</b> Third author. I co-developed reasoning-as-infilling, answer-conditioned posterior reasoning, the uncertainty-aware early exit, and the validation of intermediate reasoning.</p>
+    <div class="ch-links"><a class="btn small" href="https://arxiv.org/abs/2510.19990">Paper on arXiv</a></div>
+    <p class="bridge" data-reveal>The model can tell when its answer has settled. Can a model tell when a sentence has stopped being true?</p>
+  </div>
+</section>
+
+<!-- ===================== 4 DRR ===================== -->
+<section class="chapter" id="drr" data-thread="gen" data-title="Detect, Remask, Repair">
+  <div class="wrap">
+    <header class="ch-head">
+      <p class="ch-meta" data-reveal><span class="badge gold">EMNLP 2026, oral</span> First author, with Zachary Horvitz, Chandhru Karthick, Zhou Yu and Kathleen McKeown. Supported by IARPA BENGAL.</p>
+      <h2 data-reveal>Repair only what went stale</h2>
+      <p class="ch-lede" data-reveal>Summaries of live events go out of date as new reports arrive. Regenerating is slow and rewrites what was fine. Detect, Remask, Repair scores every word against the new evidence, remasks the risky spans, and lets a masked diffusion model infill only those.</p>
+    </header>
+    <div data-reveal="scale" data-fig="stale-timeline" data-title="The problem: a summary that was right at 8:10 AM" data-kind="illustration" data-kind-label="Example from the talk"></div>
+    <div class="split gap">
+      <figure class="shot" data-reveal="scale" style="--i:0">
+        <button class="zoom" type="button" aria-label="Enlarge the figure"><img src="assets/figures/drr-example.png" width="1036" height="1110" alt="Detect, Remask, Repair on an evolving report about lithium-ion battery fires: stale facts are flagged after later updates, remasked, and repaired" loading="lazy"></button>
+        <figcaption>From the paper: the three steps on an evolving report.</figcaption>
+      </figure>
+      <figure class="shot" data-reveal="scale" style="--i:1">
+        <button class="zoom" type="button" aria-label="Enlarge the figure"><img src="assets/figures/drr.png" width="1036" height="1082" alt="Training of the token-level detector from masked and infilled summaries, and inference: token-level detection, remasking, masked diffusion repair" loading="lazy"></button>
+        <figcaption>From the paper: detector training, and the inference pipeline.</figcaption>
+      </figure>
+    </div>
+    <div class="stats">
+      <div data-reveal style="--i:0"><b data-count="4.2" data-dec="1" data-suffix="×">4.2×</b><span>faster than rewriting, and more faithful. DialogSum: 0.89 s against 3.72 s, AlignScore 0.879 against 0.826.</span></div>
+      <div data-reveal style="--i:1"><b data-count="0.241" data-dec="3" data-prefix="+">+0.241</b><span>AlignScore over the stale draft on StreamSum (0.543 to 0.784)</span></div>
+      <div data-reveal style="--i:2"><b data-count="0.31" data-dec="2" data-suffix=" s">0.31 s</b><span>for a one-step repair</span></div>
+    </div>
+    <div class="gap" data-reveal="scale" data-fig="drr-live" data-title="Try it: move the threshold" data-kind="illustration" data-kind-label="Example from the talk, scores illustrative"
+      data-note="Token risk scores are illustrative values, chosen to show how the threshold trades faithfulness against preservation."></div>
+    <details class="more" data-reveal>
+      <summary>Results, including where it loses <span>faithfulness against time, ablations, all numbers</span></summary>
+      <div class="more-body">
+        <p>Local repair wins when the draft is still mostly reusable. When an event is overturned, rewriting wins. I report both.</p>
+        <div data-fig="drr-results" data-title="DRR against autoregressive refinement and full regeneration" data-kind="reported" data-note="Source: the EMNLP 2026 oral presentation. AlignScore is computed against the updated context."></div>
+      </div>
+    </details>
+    <details class="more">
+      <summary>How the detector learns without labels <span>[MASK]-DISC</span></summary>
+      <div class="more-body">
+        <p>Mask a fact in a faithful pair, let a diffusion model refill it, and its fluent wrong guesses become token-level negatives for the detector.</p>
+        <div data-fig="disc" data-title="Making training data for [MASK]-DISC" data-kind="illustration" data-kind-label="Example from the talk"></div>
+      </div>
+    </details>
+    <details class="more">
+      <summary>StreamSum, a benchmark that changes its mind <span>3,000 event timelines</span></summary>
+      <div class="more-body">
+        <p>To test repair on real revisions I built StreamSum: event timelines grown from real news seeds (2,000 train, 500 validation, 500 test), each with an early report and a later update that revises a fact.</p>
+        <div data-fig="streamsum" data-title="The same event, before and after the update" data-kind="reported" data-kind-label="Examples from the benchmark"></div>
+      </div>
+    </details>
+    <div class="ch-links">
+      <a class="btn small" href="https://arxiv.org/abs/2606.12807">Paper on arXiv</a>
+      <a class="btn small" href="https://aclanthology.org/2026.emnlp-main.1876/">ACL Anthology</a>
+    </div>
+    <p class="bridge" data-reveal>Repair works in a paper. Does it hold up with an analyst reading over its shoulder?</p>
+  </div>
+</section>
+
+<!-- ===================== 5 BENGAL ===================== -->
+<section class="chapter" id="bengal" data-thread="gen" data-title="BENGAL Living Report">
+  <div class="wrap">
+    <header class="ch-head">
+      <p class="ch-meta" data-reveal><span class="badge">IARPA BENGAL</span> CEDAR team: Columbia, Illinois and NYU</p>
+      <h2 data-reveal>A report that revises itself in front of an analyst</h2>
+      <p class="ch-lede" data-reveal>The Living Report updates as evidence arrives and changes only the affected passages. Every edit is versioned, and every claim links to its source.</p>
+    </header>
+    <div class="browser" data-reveal="scale">
+      <div class="browser-bar"><i></i><i></i><i></i><span>haozou-official.github.io/bengal-cedar-website/demo.html</span>
+        <button class="btn small" type="button" id="load-demo">Load the live demo here</button></div>
+      <div class="browser-body" id="demo-slot"><div data-fig="report" data-bare></div></div>
+    </div>
+    <ul class="caps" style="margin-top: 18px" data-reveal aria-label="What the demo shows">
+      <li>Versioned reports</li><li>A source for every claim</li><li>Arabic and English kept in step</li><li>Visual evidence as context</li><li>Analyst dialogue</li><li>Analyst memory</li>
+    </ul>
+    <p class="mine" data-reveal><b>My part.</b> I lead development of the demo, integrating the team's repair, contamination-detection and question-answering components into one system, and I built the project website.</p>
+    <div class="ch-links">
+      <a class="btn small solid" href="https://haozou-official.github.io/bengal-cedar-website/demo.html#tour">Open the Living Report demo</a>
+      <a class="btn small" href="https://haozou-official.github.io/bengal-cedar-website/index.html">Project site</a>
+    </div>
+    <p class="bridge" data-reveal>In a live system a nine-second repair is too slow. The next question was speed.</p>
+  </div>
+</section>
+
+<!-- ===================== 6 SPEED ===================== -->
+<section class="chapter" id="speed" data-thread="eff" data-title="Faster streaming summaries">
+  <div class="wrap">
+    <header class="ch-head">
+      <p class="ch-meta" data-reveal><span class="badge rev">Ongoing, results from November 2026</span> Research with Kathleen McKeown, supported by Capital One</p>
+      <h2 data-reveal>Make every update cheap: draft, verify, commit</h2>
+      <p class="ch-lede" data-reveal>A live meeting summary has to evolve with the discussion. Regenerating it wastes computation; copying the old one carries outdated text forward. A drafter proposes, the target model verifies, and only verified tokens are committed.</p>
+    </header>
+    <div class="stats" style="margin-top: 0">
+      <div data-reveal style="--i:0"><b data-count="1.99" data-dec="2" data-suffix="×">1.99×</b><span>faster end-to-end updates than autoregressive decoding with the same fine-tuned model</span></div>
+      <div data-reveal style="--i:1"><b data-count="3.16" data-dec="2" data-suffix="×">3.16×</b><span>faster decoding</span></div>
+      <div data-reveal style="--i:2"><b>1,024 / 1,024</b><span>identical outputs against full-vocabulary drafting, at 1.35× the update speed</span></div>
+    </div>
+    <div class="gap" data-reveal="scale" data-fig="speed-flow" data-title="Copy and verify: how one update is produced" data-kind="schematic" data-kind-label="System diagram, token example illustrative"></div>
+    <div class="gap" data-reveal="scale" data-fig="speed-bench" data-title="128-agenda MeetingBank validation benchmark" data-kind="reported"
+      data-note="p50 is the median across agenda totals, with four transcript stages per agenda. Speedups are computed from paired aggregate times, so they need not equal the ratio of the medians shown."></div>
+    <p class="mine" data-reveal><b>My part.</b> I adapted a Qwen3.5-9B target to meeting summarization, trained a matching multi-token-prediction drafter on that target's outputs, and evaluated three ways to cut drafting cost: a reduced vocabulary, copy-and-verify from the previous summary, and a parallel drafter.</p>
+    <details class="more" data-reveal>
+      <summary>What worked, what did not, and the limits of each number <span>parallel-drafter pilot, copy and verify, output quality</span></summary>
+      <div class="more-body">
+        <p>The largest gain came from making each draft step cheaper. Reusing the previous summary added a little. Drafting in parallel did not, by itself, make updates faster. That points to a learned policy for when to copy, when to draft, and how to use what the verifier rejects.</p>
+        <div class="cols c2">
+          <div class="tbl-wrap"><table class="tbl">
+            <thead><tr><th scope="col">Parallel drafter (DFlash) objective</th><th scope="col" class="num">Update speed</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Cross-entropy</th><td class="num">0.798×</td></tr>
+              <tr><th scope="row">On-policy distillation</th><td class="num">0.854×</td></tr>
+              <tr><th scope="row">With a feature-distribution (MMD) loss</th><td class="num">0.824×</td></tr>
+            </tbody>
+            <caption>Pilot on 32 validation agendas, each against its matched 16K MTP8 control. Below 1× means slower.</caption>
+          </table></div>
+          <div class="tbl-wrap"><table class="tbl">
+            <thead><tr><th scope="col">Scope of each result</th><th scope="col"></th></tr></thead>
+            <tbody>
+              <tr><th scope="row">1,024 / 1,024 identical</th><td>16K MTP8 against full-vocabulary MTP8 only. Not a claim of equivalence with autoregressive decoding.</td></tr>
+              <tr><th scope="row">Copy and verify</th><td>Separate 64-agenda run: 1.027× (95% paired bootstrap interval 1.015 to 1.040×), 512 / 512 identical. The copy rule is hand-written, not learned.</td></tr>
+              <tr><th scope="row">Output quality</th><td>AlignScore 0.585 for autoregressive and 0.582 for both drafting variants. Point estimates.</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+    </details>
+    <div class="ch-links">
+      <a class="btn small" href="https://aclanthology.org/2023.acl-long.906/">MeetingBank (dataset)</a>
+      <a class="btn small" href="https://proceedings.mlr.press/v306/chen26bv.html">DFlash (prior work)</a>
+    </div>
+    <p class="bridge" data-reveal>Text can be drafted, checked and repaired. Actions are harder: there is no undo, and the check arrives hundreds of steps later.</p>
+  </div>
+</section>
+
+<div class="thread-head" data-thread="agents"><div class="wrap" data-reveal>
+  <h2>Thread two: agents that learn from being checked</h2>
+  <p>With Xiao Yu in Zhou Yu's group I moved to long-horizon agents. The questions are the ones above, with an environment standing in for the source document.</p>
+</div></div>
+
+<!-- ===================== 7 OSWORLD ===================== -->
+<section class="chapter" id="osworld" data-thread="agents" data-title="OSWorld 2.0">
+  <div class="wrap">
+    <header class="ch-head">
+      <p class="ch-meta" data-reveal><span class="badge rev">ICLR 2027 submission</span> A 36-author collaboration led by XLANG Lab</p>
+      <h2 data-reveal>Where long tasks actually break</h2>
+      <p class="ch-lede" data-reveal>108 computer-use workflows that take a skilled person a median of 1.6 hours, across desktop applications and 31 self-hosted websites.</p>
+    </header>
+    <figure class="film" data-reveal="scale">
+      <video src="assets/video/osworld2-overview.mp4" poster="assets/video/osworld2-poster.jpg" muted loop playsinline controls preload="metadata" aria-label="OSWorld 2.0 overview: agents working through long tasks such as streaming interaction, tutorial following, 3D modeling and video editing"></video>
+      <figcaption>The OSWorld 2.0 overview video: single tasks that run for hundreds of steps.</figcaption>
+    </figure>
+    <div class="stats">
+      <div data-reveal style="--i:0"><b data-count="318">318</b><span>tool calls per task on average, against about 30 in the original OSWorld</span></div>
+      <div data-reveal style="--i:1"><b data-count="20.6" data-dec="1" data-suffix="%">20.6%</b><span>of tasks completed by the best agent within 500 steps</span></div>
+      <div data-reveal style="--i:2"><b data-count="54.8" data-dec="1" data-suffix="%">54.8%</b><span>its partial score: most of the way there, then no finish</span></div>
+    </div>
+    <div class="split wide-left gap center">
+      <figure class="shot" data-reveal="scale">
+        <button class="zoom" type="button" aria-label="Enlarge the figure"><img src="assets/figures/osworld2.png" width="1072" height="752" alt="OSWorld 2.0 trajectories: form filling, asking the user, web search, external apps, coding, screenshots, and a task whose environment changes while the agent works" loading="lazy"></button>
+        <figcaption>From the paper. In the bottom row the environment changes while the agent is working.</figcaption>
+      </figure>
+      <div data-reveal>
+        <p class="bridge" style="margin: 0; font-size: clamp(20px, 2vw, 25px)">Agents rarely fail at clicking or coding. They lose a constraint, miss what arrives mid-task, guess instead of asking, and skip verification.</p>
+        <p class="mine"><b>My part.</b> I contributed long-horizon computer-use workflows to the benchmark.</p>
+      </div>
+    </div>
+    <div class="gap" data-reveal="scale" data-fig="osworld" data-title="What a ten-times-longer task looks like" data-kind="reported" data-kind-label="Counts as reported, failure positions illustrative"></div>
+    <details class="more" data-reveal>
+      <summary>OSWorld 1.0 against 2.0 <span>what changed</span></summary>
+      <div class="more-body">
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th scope="col"></th><th scope="col">OSWorld 1.0</th><th scope="col">OSWorld 2.0</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Average agent steps per task</th><td>under 30</td><td>over 250</td></tr>
+            <tr><th scope="row">Tasks spanning several apps</th><td>a minority</td><td>the majority</td></tr>
+            <tr><th scope="row">Self-hosted websites</th><td>none</td><td>31</td></tr>
+            <tr><th scope="row">Input files</th><td>mixed or synthetic</td><td>authentic</td></tr>
+            <tr><th scope="row">Cross-source reasoning</th><td></td><td>46 tasks (42.6%)</td></tr>
+            <tr><th scope="row">Dynamic environment</th><td></td><td>10 tasks (9.3%)</td></tr>
+          </tbody>
+          <caption>From the OSWorld 2.0 paper and project site.</caption>
+        </table></div>
+      </div>
+    </details>
+    <div class="ch-links">
+      <a class="btn small" href="https://osworld-v2.xlang.ai/">Benchmark site</a>
+      <a class="btn small" href="https://arxiv.org/abs/2606.29537">Paper on arXiv</a>
+    </div>
+    <p class="bridge" data-reveal>A benchmark shows where agents break. Fixing them means training in the setting they are deployed in.</p>
+  </div>
+</section>
+
+<!-- ===================== 8 OPENFORGE ===================== -->
+<section class="chapter" id="openforge" data-thread="agents" data-title="OpenForgeRL">
+  <div class="wrap">
+    <header class="ch-head">
+      <p class="ch-meta" data-reveal><span class="badge rev">ICLR 2027 submission</span> With Xiao Yu, Baolin Peng, Ruize Xu, Qianhui Wu, Hao Cheng, Wenlin Yao, Nikhil Singh, Zhou Yu and Jianfeng Gao</p>
+      <h2 data-reveal>Train the agent inside the harness it ships with</h2>
+      <p class="ch-lede" data-reveal>Agents run inside harnesses like Claude Code, Codex and OpenClaw, but open RL stacks cannot express that stateful inference. OpenForgeRL adds a proxy that records the harness's model calls as training data, and an orchestrator that runs every rollout in its own remote sandbox.</p>
+    </header>
+    <figure class="shot" data-reveal="scale">
+      <button class="zoom" type="button" aria-label="Enlarge the figure"><img src="assets/figures/openforgerl.png" width="1600" height="926" alt="OpenForgeRL architecture: a standard RL trainer and inference server on the left; a proxy server, rollout orchestrator and trajectory reconstruction in the middle; remote sandboxes pairing any harness with any environment on the right" loading="lazy"></button>
+      <figcaption>From the paper: any harness, any environment, one standard trainer.</figcaption>
+    </figure>
+    <div class="stats">
+      <div data-reveal style="--i:0"><b data-count="55.9" data-dec="1">55.9</b><span>ClawEval pass@3 (OpenForge-Claw)</span></div>
+      <div data-reveal style="--i:1"><b data-count="37.7" data-dec="1">37.7</b><span>OSWorld-Verified (OpenForge-GUI)</span></div>
+      <div data-reveal style="--i:2"><b data-count="63.0" data-dec="1">63.0</b><span>Online-Mind2Web</span></div>
+      <div data-reveal style="--i:3"><b data-count="72.3" data-dec="1">72.3</b><span>WebVoyager</span></div>
+    </div>
+    <div class="cols c3 gap">
+      <div class="cardlet" data-reveal style="--i:0"><h4>RL makes agents more dependable</h4><p>Self-verification, tool coverage and finishing multi-step plans all improve.</p></div>
+      <div class="cardlet" data-reveal style="--i:1"><h4>Error recovery stays weak</h4><p>The ability agents need most on long tasks is the one training helped least.</p></div>
+      <div class="cardlet" data-reveal style="--i:2"><h4>Harnesses are not equal</h4><p>Some are much harder to learn than others, so the harness is part of the result.</p></div>
+    </div>
+    <p class="mine" data-reveal><b>My part.</b> Co-author. I worked on connecting agent harnesses and isolated rollout environments to scalable SFT and RL training.</p>
+    <div class="ch-links">
+      <a class="btn small" href="https://arxiv.org/abs/2607.21557">Paper on arXiv</a>
+      <a class="btn small" href="https://aka.ms/OpenForge-RL">Code</a>
+    </div>
+    <p class="bridge" data-reveal>With rollouts this long, the training data itself goes stale.</p>
+  </div>
+</section>
+
+<!-- ===================== 9 STALENESS ===================== -->
+<section class="chapter" id="staleness" data-thread="agents" data-title="Stale rollouts in RL">
+  <div class="wrap">
+    <header class="ch-head">
+      <p class="ch-meta" data-reveal><span class="badge rev">Ongoing</span> With Xiao Yu</p>
+      <h2 data-reveal>Do not wait for the slowest rollout</h2>
+      <p class="ch-lede" data-reveal>Synchronous RL waits for the slowest rollout, so GPUs sit idle. Asynchronous RL keeps them busy, but by the time a trajectory is used, the policy that produced it is several updates old. I am comparing synchronous, asynchronous and single-rollout asynchronous (SAO) training in ALFWorld, to measure what that staleness costs.</p>
+    </header>
+    <div data-reveal="scale" data-fig="staleness" data-title="Eight workers, three schedulers, the same rollouts" data-kind="simulation"
+      data-note="A simulation of the scheduling mechanism only. It shows why staleness appears, not how much it hurts. No experimental results are shown; the ALFWorld study is in progress."></div>
+    <div class="ch-links">
+      <a class="btn small" href="https://arxiv.org/abs/2607.07508">SAO paper (related work)</a>
+      <a class="btn small" href="https://github.com/verl-project/verl/issues/7100">SAO in veRL (discussion)</a>
+    </div>
+    <p class="bridge" data-reveal>Three threads, and the same loop in each.</p>
+  </div>
+</section>
+
+<!-- ===================== 10 NEXT ===================== -->
+<section class="chapter" id="next" data-thread="next" data-title="What is next">
+  <div class="wrap">
+    <header class="ch-head">
+      <p class="ch-meta" data-reveal><span class="badge">The through-line</span></p>
+      <h2 data-reveal>One loop at three scales</h2>
+      <p class="ch-lede" data-reveal>Each project produces a draft, checks it against something outside the generator, and then changes as little as possible. What differs is the size of the thing being checked.</p>
+    </header>
+    <div data-reveal="scale" data-fig="loop" data-title="Draft, verify, repair" data-kind="schematic"></div>
+
+    <div class="phd">
+      <p class="kicker" data-reveal>What I want to build in a PhD</p>
+      <h2 class="h-xl" data-reveal style="max-width: 14em">An agent that commits like an autoregressive model and revises like a diffusion model.</h2>
+
+      <div class="dir">
+        <div>
+          <p class="n" data-reveal>Direction one</p>
+          <h3 data-reveal>Two minds in one agent</h3>
+          <p data-reveal>Autoregressive models reason well in causal order. Masked diffusion models decode in parallel and can reopen any position, and scaled-up ones such as LLaDA 2.0 and Mercury 2 now support tool calling. I want to treat the autoregressive model as the target and the diffusion model as the drafter, and learn the policy that routes between them over a long task.</p>
+          <ul data-reveal>
+            <li><b>Route.</b> A learned switch decides, step by step, which model acts: slow causal reasoning, or a fast parallel draft.</li>
+            <li><b>Hand off.</b> Prefill the autoregressive model's chain of thought into the diffusion model's template, so the tool call is infilled in a few parallel steps.</li>
+            <li><b>Roll back.</b> When a draft is rejected, reopen only the rejected positions, or fall back to the other model.</li>
+            <li><b>Measure.</b> Autoregressive, diffusion and hybrid agents side by side: where does each one win, and why?</li>
+          </ul>
+          <div class="ladder" data-reveal><span>ALFWorld</span><span>ScienceWorld</span><span>WebShop</span><span>search agents</span><em>then</em><span>SWE-rebench</span><span>OSWorld</span></div>
+          <p class="src" data-reveal>Builds on <a href="#speed">speculative decoding</a>, <a href="#mdlm">reasoning as infilling</a> and <a href="#drr">localized repair</a>. Background: <a href="https://arxiv.org/abs/2512.15745">LLaDA 2.0</a>, <a href="https://inceptionlabs.ai/blog/mercury-2-the-first-reasoning-model-fast-enough-to-pick-up-the-phone">Mercury 2</a>.</p>
+        </div>
+        <div class="panel hscroll" data-reveal="scale"><div data-fig="hybrid" data-bare></div></div>
+      </div>
+
+      <div class="dir">
+        <div>
+          <p class="n" data-reveal>Direction two</p>
+          <h3 data-reveal>Reinforcement learning for diffusion language models</h3>
+          <p data-reveal>Post-train diffusion language models on agentic tasks such as ALFWorld, WebShop and ScienceWorld, for higher success and lower latency. I want to carry over what is working for autoregressive agents: asynchronous training, partial rollouts, MiMo-style methods and single-rollout optimization.</p>
+          <p class="src" data-reveal>Builds on <a href="#openforge">OpenForgeRL</a> and the <a href="#staleness">staleness study</a>. Background: <a href="https://arxiv.org/abs/2510.09541">Sandwiched Policy Gradient</a>, <a href="https://arxiv.org/abs/2607.15200">Mask-Aware Policy Gradients</a>, <a href="https://arxiv.org/abs/2603.12554">stepwise advantages for diffusion LLMs</a>.</p>
+        </div>
+        <div class="panel" data-reveal="scale">
+          <h4 style="margin: 0 0 14px; font: 600 15px var(--body)">Why it is harder than autoregressive RL</h4>
+          <div class="eq" aria-label="Autoregressive log-likelihood is a sum over tokens; the masked diffusion log-likelihood sums over unmasking orders and is intractable">
+            <span>autoregressive</span><span>log π(y) = Σ<sub>t</sub> log π(y<sub>t</sub> | y<sub>&lt;t</sub>)</span>
+            <span>masked diffusion</span><span>log π(y) = log Σ<sub>orders</sub> Π π(·), intractable</span>
+          </div>
+          <div class="why">
+            <div><b>1</b><div><h4>No exact likelihood</h4><p>Policy gradients need the log-probability of what the policy produced. A masked diffusion model would have to sum over every order in which positions could have been unmasked.</p></div></div>
+            <div><b>2</b><div><h4>The usual stand-in is one-sided</h4><p>The evidence lower bound only bounds the likelihood from below. That biases the gradient, most of all when a bad output has to be pushed down.</p></div></div>
+            <div><b>3</b><div><h4>Two decisions per step</h4><p>Each step chooses what to write and where. Remasking, the ability I care about most, breaks the one-way process that most current methods assume.</p></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dir">
+        <div>
+          <p class="n" data-reveal>Direction three, and open to it</p>
+          <h3 data-reveal>Language models that meet the physical world</h3>
+          <p data-reveal>General-purpose models have started to control robots directly. Recent evaluations of GPT-6 Astra report real competence, and a clear gap between semantic reasoning and physical execution. I want to find out where that gap sits. My guess is in what language describes poorly: deformable objects, contact, spatial precision. I would like to build the benchmarks and data that measure it.</p>
+          <p data-reveal>I trained diffusion policies for simple manipulation, picking up cubes and flipping objects, during a short internship in Yunzhu Li's lab. That is where deformability and spatial awareness stopped being abstractions for me.</p>
+          <p class="src" data-reveal>Background: <a href="https://arxiv.org/abs/2610.28259v1">direct robot control with GPT-6 Astra</a>, <a href="https://arxiv.org/abs/2610.22471">Has GPT-6-Astra Achieved Embodied Intelligence?</a>, <a href="https://arxiv.org/abs/2605.18746">ESI-Bench</a> on embodied spatial intelligence.</p>
+        </div>
+        <div class="panel" data-reveal="scale"><div data-fig="cloth" data-bare></div></div>
+      </div>
+    </div>
+
+    <h3 class="ch-sub" data-reveal>People I have learned from</h3>
+    <ul class="people" data-reveal>
+      <li><b><a href="https://www.cs.columbia.edu/~kathy/">Kathleen McKeown</a></b>, advisor</li>
+      <li><b><a href="https://www.cs.columbia.edu/~zhouyu/">Zhou Yu</a></b>, advisor</li>
+      <li><b>Zachary Horvitz</b>, diffusion</li>
+      <li><b>Xiao Yu</b>, agents and RL</li>
+      <li><b>Dongyeop Kang</b>, Minnesota</li>
+      <li><b>Jordan Boyd-Graber</b>, Maryland</li>
+      <li><b>Enmao Diao</b>, Duke</li>
+      <li><b>Naigang Wang</b>, IBM</li>
+    </ul>
+    <p class="ch-p" style="margin-top: 14px; font-size: 15px; color: var(--ink-3)">This work has been supported by the IARPA BENGAL program and by Capital One.</p>
+  </div>
+</section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Hao Zou, Columbia University. <a href="mailto:hz2999@columbia.edu">hz2999@columbia.edu</a></span>
+    <span><button class="linkish" type="button" id="intro-replay">Replay the opening</button> &nbsp; <a href="https://haozou-official.github.io/files/Hao_Zou_CV20261015.pdf">CV</a> &nbsp; <a href="https://scholar.google.com/citations?hl=en&user=jwujaocAAAAJ">Google Scholar</a> &nbsp; <a href="https://github.com/haozou-official">GitHub</a> &nbsp; <a href="https://www.linkedin.com/in/hao-zou-05b447248/">LinkedIn</a></span>
+  </div>
+</footer>
+
+<nav class="rail" aria-label="Chapters"></nav>
+<div class="tour" role="group" aria-label="Guided tour">
+  <button type="button" id="tour-prev">Back</button>
+  <span class="where" aria-live="polite"></span>
+  <button type="button" id="tour-next">Next</button>
+  <span class="keys" aria-hidden="true">or use ← →</span>
+</div>
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged figure"></div>
+
+<script src="js/core.js"></script>
+<script src="js/intro.js"></script>
+<script src="js/map3d.js"></script>
+<script src="js/figures-gen.js"></script>
+<script src="js/figures-agents.js"></script>
+<script src="js/figures-next.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
